@@ -232,7 +232,7 @@ class Board extends React.Component {
           return {winningCells: makeWinnersArray(index, i, index, index+needForWin, f3), winner: squares[i + index*(size-1)]};
       }
     }
-    // 2 diagonals: ///
+    // 2 diagonals  : ///
     let start = squares.length - n*size - 1;
     for(let i = start; i > size; i -= size){
       let str = makeStr(i, squares.length, size-1, false);
