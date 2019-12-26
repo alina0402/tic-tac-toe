@@ -145,6 +145,7 @@ class Board extends React.Component {
                     onClick = {(i) => this.handleClick(i)} />
           </div>
           <div className="game-info">
+          !!!
             <SortButton sortedAsc = {this.state.sortAsc} onClick = {() => this.handleSort()}/>
             <div>{status}</div>
             <ul>{moves}</ul>
