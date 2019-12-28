@@ -52,3 +52,18 @@ ol, ul {
 .game-info {
   margin-left: 20px;
 }
+
+#select-form{
+  margin: auto;
+  padding: 5px;
+  position: absolute;
+  width: 350px;
+  height: auto;
+  border: 1px solid black;
+}
+
+.select-param{
+  margin: 2px;
+  width: 50px;
+
+}

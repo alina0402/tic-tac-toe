@@ -2,6 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+const cells = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
+const win = [3, 4, 5, 6, 7];
+
 function Square(props) {
       return (
         <button className = {props.highlighted ? "square highlighted" : "square"}
@@ -154,11 +157,58 @@ class Board extends React.Component {
     }
   }
 
+  class InitialForm extends React.Component{
+    constructor(props){
+      super(props);
+      this.state = {
+        size: 3,
+        needForWin: 3,
+        key: 0,
+      }
+      this.handleSubmit = this.handleSubmit.bind(this);
+      this.handleChange = this.handleChange.bind(this);
+    }
+
+    handleSubmit(){
+      
+    }
+
+    handleChange(){
+      
+    }
+
+    render(){
+      const optionsSize = cells.map((item) => <option>{item}</option>);
+      const optionsNeedForWin =win.map((item) => <option>{item}</option>);
+      return(
+        <form id = 'inline-form' onSubmit = {this.handleSubmit}>
+            <label for = 'select-size'>Size of board: </label>
+            <select className = 'select-param' 
+                   id = 'select-size' 
+                   value = {this.state.size}
+                   onChange = {this.handleChange}>
+                   {optionsSize}
+            </select>
+            <label for = 'select-needforwin'>Cells need to win: </label>
+            <select className = 'select-param' 
+                   id = 'select-needforwin' 
+                   value = {this.state.needForWin}
+                   >
+                   {optionsNeedForWin}
+            </select>            
+        </form>
+      )
+    }
+  }
   // ========================================
 
   ReactDOM.render(
-    <Game size = {10} needForWin = {5} />,
+    // <Game size = {10} needForWin = {5} />,
+    // document.getElementById('root')
+
+    <InitialForm />,
     document.getElementById('root')
+
   );
 
   function calculateWinner(squares, needForWin) {
