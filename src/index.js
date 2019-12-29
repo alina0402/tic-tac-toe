@@ -170,8 +170,19 @@ class Board extends React.Component {
       this.handleNeedForWinChange = this.handleNeedForWinChange.bind(this);
     }
 
+    renderGame() {
+
+      return (<Game
+                size = {this.state.size}
+                needForWin = {this.state.needForWin}
+                key = 'game'
+              />,
+              document.getElementById('root')
+      );
+    }
+
     handleSubmit(){
-      
+      this.renderGame();
     }
 
     handleSizeChange(event){
@@ -187,19 +198,19 @@ class Board extends React.Component {
     }
 
     render(){
-      const optionsSize = cells.map((item) => <option>{item}</option>);
-      const optionsNeedForWin =win.map((item) => <option>{item}</option>);
+      const optionsSize = cells.map((item) => <option key = {'c'+item}>{item}</option>);
+      const optionsNeedForWin =win.map((item) => <option key = {'w'+item}>{item}</option>);
       return(
         <form id = 'inline-form' onSubmit = {this.handleSubmit}>
             <h3>Choose parameters of game: </h3>
-            <label for = 'select-size'>Size of board: </label>
+            <label htmlFor = 'select-size'>Size of board: </label>
             <select className = 'select-param' 
                    id = 'select-size' 
                    value = {this.state.size}
                    onChange = {this.handleSizeChange}>
                    {optionsSize}
             </select>
-            <label for = 'select-needforwin'>Cells need to win: </label>
+            <label htmlFor = 'select-needforwin'>Cells need to win: </label>
             <select className = 'select-param' 
                    id = 'select-needforwin' 
                    value = {this.state.needForWin}
