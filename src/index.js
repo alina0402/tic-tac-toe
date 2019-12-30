@@ -2,8 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-const cells = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
-const win = [3, 4, 5, 6, 7];
+const CELLS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
+const WIN = [3, 4, 5, 6, 7];
+
+const INIT_SIZE = 3;
+const INIT_NEEDFORWIN = 3;
 
 function Square(props) {
       return (
@@ -27,7 +30,7 @@ function SortButton(props) {
 
 class Board extends React.Component {
     renderSquare(i) {
-
+      
       return (<Square
                 key = {'square' + i}
                 value = {this.props.squares[i]}
@@ -60,16 +63,23 @@ class Board extends React.Component {
       super(props);
       this.state = {
         history: [{
-          squares: Array(props.size*props.size).fill(null),
+          squares: Array(INIT_SIZE*INIT_SIZE).fill(null),
           row: null,
           col: null,
-        }],
-        // size: props.size,
+       }],
+        size: INIT_SIZE,
+        needForWin: INIT_NEEDFORWIN, 
         stepNumber: 0,
         xIsNext: true,
         sortAsc: true,
+        init: true,
       };
+      this.handleInitSubmit = this.handleInitSubmit.bind(this);
+      this.handleSizeChange = this.handleSizeChange.bind(this);
+      this.handleNeedForWinChange = this.handleNeedForWinChange.bind(this);
+
     }
+    
 
     handleClick(i){
       const history = this.state.history.slice(0, this.state.stepNumber + 1);
@@ -77,7 +87,7 @@ class Board extends React.Component {
       const squares = [...current.squares];
 
 
-      if(calculateWinner(squares, this.props.needForWin).winner || squares[i])
+      if(calculateWinner(squares, this.state.needForWin).winner || squares[i])
         return;
 
       squares[i] = this.state.xIsNext ? 'X' : 'O';
@@ -121,68 +131,17 @@ class Board extends React.Component {
       }).reverse();
     }
 
-    handleSort(){
-      this.setState({sortAsc: !this.state.sortAsc});
-      this.renderMoves(this.state.history, this.state.sortAsc);
-    }
-
-    render() {
-      const history = this.state.history.slice(0);
-      const current = history[this.state.stepNumber];
-
-      const winResult = calculateWinner(current.squares, this.props.needForWin);
-
-      const moves = this.renderMoves(history, this.state.sortAsc);
-
-      let lastStep = "Last step: ("  + current.row + ", " + current.col + "); ";
-      lastStep = lastStep.concat("Next player: " + (this.state.xIsNext ? "X" : "O"));
-
-      let status = winResult.winner ? "Winner: " + winResult.winner : lastStep;
-
-      return (
-        <div className="game">
-          <div className="game-board">
-            <Board squares = {current.squares}
-                   size = {this.props.size}
-                   winningCells = {winResult.winningCells}
-                    onClick = {(i) => this.handleClick(i)} />
-          </div>
-          <div className="game-info">
-            <SortButton sortedAsc = {this.state.sortAsc} onClick = {() => this.handleSort()}/>
-            <div>{status}</div>
-            <ul>{moves}</ul>
-          </div>
-        </div>
-      );
-    }
-  }
-
-  class InitialForm extends React.Component{
-    constructor(props){
-      super(props);
-      this.state = {
-        size: 3,
-        needForWin: 3,
-        key: 0,
-      }
-      this.handleSubmit = this.handleSubmit.bind(this);
-      this.handleSizeChange = this.handleSizeChange.bind(this);
-      this.handleNeedForWinChange = this.handleNeedForWinChange.bind(this);
-    }
-
-    renderGame() {
-
-      return (<Game
-                size = {this.state.size}
-                needForWin = {this.state.needForWin}
-                key = 'game'
-              />,
-              document.getElementById('root')
-      );
-    }
-
-    handleSubmit(){
-      this.renderGame();
+    handleInitSubmit(){
+      let newArraySize = this.state.size * this.state.size;
+      let squares =  Array(newArraySize).fill(null);
+      this.setState((state) => ({
+        history: [{
+          squares: squares,
+          row: null,
+          col: null,
+        }],
+        init: false,
+      }))
     }
 
     handleSizeChange(event){
@@ -197,41 +156,79 @@ class Board extends React.Component {
       })
     }
 
-    render(){
-      const optionsSize = cells.map((item) => <option key = {'c'+item}>{item}</option>);
-      const optionsNeedForWin =win.map((item) => <option key = {'w'+item}>{item}</option>);
+    renderInit(){
+      const optionsSize = CELLS.map((item) => <option key = {'c'+item}>{item}</option>);
+      const optionsNeedForWin =WIN.map((item) => <option key = {'w'+item}>{item}</option>);
       return(
-        <form id = 'inline-form' onSubmit = {this.handleSubmit}>
-            <h3>Choose parameters of game: </h3>
-            <label htmlFor = 'select-size'>Size of board: </label>
-            <select className = 'select-param' 
-                   id = 'select-size' 
-                   value = {this.state.size}
-                   onChange = {this.handleSizeChange}>
-                   {optionsSize}
-            </select>
-            <label htmlFor = 'select-needforwin'>Cells need to win: </label>
-            <select className = 'select-param' 
-                   id = 'select-needforwin' 
-                   value = {this.state.needForWin}
-                   onChange = {this.handleNeedForWinChange}
-                   >
-                   {optionsNeedForWin}
+        <form id = 'inline-form' onSubmit = {this.handleInitSubmit}>
+          <h3>Choose parameters of game: </h3>
+          <label htmlFor = 'select-size'>Size of board: </label>
+          <select className = 'select-param' 
+                  id = 'select-size' 
+                  value = {this.state.size}
+                  onChange = {this.handleSizeChange}>
+                  {optionsSize}
+          </select>
+          <label htmlFor = 'select-needforwin'>Cells need to win: </label>
+          <select className = 'select-param' 
+                  id = 'select-needforwin' 
+                  value = {this.state.needForWin}
+                  onChange = {this.handleNeedForWinChange} >
+                  {optionsNeedForWin}
             </select>         
             <button type = "submit">Submit</button>   
         </form>
       )
     }
+
+    handleSort(){
+      this.setState({sortAsc: !this.state.sortAsc});
+      this.renderMoves(this.state.history, this.state.sortAsc);
+    }
+
+    render() {
+      if(this.state.init){
+        return this.renderInit(INIT_SIZE, INIT_NEEDFORWIN);
+      }
+      else{
+        const history = this.state.history.slice(0);
+        const current = history[this.state.stepNumber];
+  
+        const winResult = calculateWinner(current.squares, this.state.needForWin);
+  
+        const moves = this.renderMoves(history, this.state.sortAsc);
+  
+        let lastStep = "Last step: ("  + current.row + ", " + current.col + "); ";
+        lastStep = lastStep.concat("Next player: " + (this.state.xIsNext ? "X" : "O"));
+  
+        let status = winResult.winner ? "Winner: " + winResult.winner : lastStep;
+  
+        return (
+          <div className="game">
+            <div className="game-board">
+              <Board squares = {current.squares}
+                     size = {this.state.size}
+                     winningCells = {winResult.winningCells}
+                      onClick = {(i) => this.handleClick(i)} />
+            </div>
+            <div className="game-info">
+              <SortButton sortedAsc = {this.state.sortAsc} onClick = {() => this.handleSort()}/>
+              <div>{status}</div>
+              <ul>{moves}</ul>
+            </div>
+          </div>
+        );
+          
+      }
+    }
   }
+
+
   // ========================================
 
   ReactDOM.render(
-    // <Game size = {10} needForWin = {5} />,
-    // document.getElementById('root')
-
-    <InitialForm />,
+    <Game size = {10} needForWin = {5} />,
     document.getElementById('root')
-
   );
 
   function calculateWinner(squares, needForWin) {
