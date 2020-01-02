@@ -8,7 +8,7 @@ ol, ul {
 }
 
 .board-row:after {
-  clear: both;
+  clear: both;  /* clean floats for the next row */ 
   content: "";
   display: table;
 }
@@ -25,7 +25,7 @@ ol, ul {
   font-weight: bold;
   line-height: 34px;
   height: 34px;
-  margin-right: -1px;
+  margin-right: -1px;  /* square is a <button>, with margin == 0 grid will look ugly */
   margin-top: -1px;
   padding: 0;
   text-align: center;
@@ -37,7 +37,7 @@ ol, ul {
 }
 
 .square:focus {
-  outline: none;
+  outline: none;  /* since square is a <button> it has default outline, we need to remove it */
 }
 
 .kbd-navigation .square:focus {
@@ -47,23 +47,79 @@ ol, ul {
 .game {
   display: flex;
   flex-direction: row;
+  justify-content: center;
+  position: relative;
+  top: 2em;
 }
 
 .game-info {
   margin-left: 20px;
+  padding: 4px;
+  background-color: #ddd;
 }
 
 #select-form{
   margin: auto;
   padding: 5px;
-  position: absolute;
+  position: relative;
   width: 350px;
-  height: auto;
+  height: 200px;
+  top: 2em;
   border: 1px solid black;
+  background-color: azure;
 }
 
-.select-param{
-  margin: 2px;
-  width: 50px;
+#select-form > button{
+  position: relative;
+  display: block;
+  margin: auto;
+  width: 100%;
+}
 
+#select-form > h3{
+  margin: auto;
+  display: block;
+  position: relative;
+  color: green;
+  margin-bottom: 20px;
+}
+.select-param{
+  margin: 2px 2px 20px 2px;
+  width: 50px;
+  display: inline-block;
+}
+
+#sort-btn{
+  margin-bottom: 0.5em;
+  margin-top: 0.5em;
+  margin-left: 5%;
+  margin-right: 5%;
+  width: 90%;
+  font-weight: 600;
+}
+
+.game-info >ul{
+  margin: 2px 5% 2px 5%;
+  padding: 0;
+}
+
+.li-move{
+  display: block;
+  position: relative;
+  left: 0;
+  margin: 0;
+}
+
+.li-move > button{
+  width: 100%;
+  margin: 1px 0 1px 0;
+}
+
+#status{
+  width: 300px;
+  margin: 1em 2px 1em 2px;
+  padding: 2px;
+  text-align: center;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 600;
 }
