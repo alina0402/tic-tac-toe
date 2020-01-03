@@ -65,6 +65,34 @@ class Board extends React.Component {  // The Board contains NxN Squares
     }
   }
 
+// ===================== Board component: ====================================================================
+class InitScreen extends React.Component{
+  render(){
+    const optionsSize = CELLS.map((item) => <option key = {'c'+item}>{item}</option>); // prepare <options> for <select> of size
+    const optionsNeedForWin =WIN.map((item) => <option key = {'w'+item}>{item}</option>);  // prepare <options> for <select> of winning cells
+    return(
+      <form id = 'select-form' onSubmit = {() => this.props.onSubmit()}> 
+        <h3>Choose parameters of game: </h3>
+        <label htmlFor = 'select-size'>Size of board: </label>
+        <select className = 'select-param' 
+                id = 'select-size' 
+                value = {this.props.size}
+                onChange = {(e) => this.props.onSizeChange(e)}>
+                {optionsSize}
+        </select>
+        <label htmlFor = 'select-needforwin'>Cells need to win: </label>
+        <select className = 'select-param' 
+                id = 'select-needforwin' 
+                value = {this.props.needForWin}
+                onChange = {(e) => this.props.onNeedForWinChange(e)}>
+                {optionsNeedForWin}
+          </select>         
+          <button type = "submit">Submit</button>   
+      </form>
+    )
+  }
+}
+
 // ===================== Game component: ====================================================================
   class Game extends React.Component {
     constructor(props){
@@ -83,8 +111,6 @@ class Board extends React.Component {  // The Board contains NxN Squares
         init: true,     // in the beginning the game is in the state of initiation: the user chooses the parameters of the game
       };
       this.handleInitSubmit = this.handleInitSubmit.bind(this);  // for these functions we use .bind method to pass them to components
-      this.handleSizeChange = this.handleSizeChange.bind(this);
-      this.handleNeedForWinChange = this.handleNeedForWinChange.bind(this);
     }
     
 //-------------------- Functions: --------------------------------------------------
@@ -133,6 +159,7 @@ class Board extends React.Component {  // The Board contains NxN Squares
     }
 //---------------------------------------------------------------------------------------------------------------
     handleInitSubmit(){  // function sets the initial meaning of history array and closes the init process
+      console.log('inside submit!');
       this.setState(() => ({
         history: [{
           squares: Array(this.state.size * this.state.size).fill(null),
@@ -153,31 +180,6 @@ class Board extends React.Component {  // The Board contains NxN Squares
       this.setState({
         needForWin: event.target.value,
       })
-    }
-//---------------------------------------------------------------------------------------------------------------
-    renderInit(){  // renders the initial screen
-      const optionsSize = CELLS.map((item) => <option key = {'c'+item}>{item}</option>); // prepare <options> for <select> of size
-      const optionsNeedForWin =WIN.map((item) => <option key = {'w'+item}>{item}</option>);  // prepare <options> for <select> of winning cellss
-      return(
-        <form id = 'select-form' onSubmit = {this.handleInitSubmit}> 
-          <h3>Choose parameters of game: </h3>
-          <label htmlFor = 'select-size'>Size of board: </label>
-          <select className = 'select-param' 
-                  id = 'select-size' 
-                  value = {this.state.size}
-                  onChange = {this.handleSizeChange}>
-                  {optionsSize}
-          </select>
-          <label htmlFor = 'select-needforwin'>Cells need to win: </label>
-          <select className = 'select-param' 
-                  id = 'select-needforwin' 
-                  value = {this.state.needForWin}
-                  onChange = {this.handleNeedForWinChange} >
-                  {optionsNeedForWin}
-            </select>         
-            <button type = "submit">Submit</button>   
-        </form>
-      )
     }
 //---------------------------------------------------------------------------------------------------------------
     handleSort(){  // changes the order of sorting (asc to desc and vice versa) 
@@ -223,7 +225,14 @@ class Board extends React.Component {  // The Board contains NxN Squares
     render() {
       console.log('init = ', this.state.init);
       if(this.state.init){  // if the game is in the process of initiating of parameters
-        return this.renderInit();  
+        return(
+          <InitScreen size = {this.state.size} 
+                    needForWin = {this.state.needForWin}
+                    onSubmit = {this.handleInitSubmit}
+                    onSizeChange = {(e) => this.handleSizeChange(e)}
+                    onNeedForWinChange = {(e) => this.handleNeedForWinChange(e)}
+            />
+        )
       }
       else{
         return this.renderGame();
