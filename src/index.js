@@ -221,6 +221,7 @@ class Board extends React.Component {  // The Board contains NxN Squares
     }
 //---------------------------------------------------------------------------------------------------------------
     render() {
+      console.log('init = ', this.state.init);
       if(this.state.init){  // if the game is in the process of initiating of parameters
         return this.renderInit();  
       }
