@@ -67,11 +67,12 @@ class Board extends React.Component {  // The Board contains NxN Squares
 
 // ===================== Board component: ====================================================================
 class InitScreen extends React.Component{
+
   render(){
     const optionsSize = CELLS.map((item) => <option key = {'c'+item}>{item}</option>); // prepare <options> for <select> of size
     const optionsNeedForWin =WIN.map((item) => <option key = {'w'+item}>{item}</option>);  // prepare <options> for <select> of winning cells
     return(
-      <form id = 'select-form' onSubmit = {() => this.props.onSubmit()}> 
+      <form id = 'select-form' onSubmit = {(e) => this.props.onSubmit(e)}> 
         <h3>Choose parameters of game: </h3>
         <label htmlFor = 'select-size'>Size of board: </label>
         <select className = 'select-param' 
@@ -158,7 +159,7 @@ class InitScreen extends React.Component{
       return asc ? moveElems : moveElems.reverse();  // sort the array of steps
     }
 //---------------------------------------------------------------------------------------------------------------
-    handleInitSubmit(){  // function sets the initial meaning of history array and closes the init process
+    handleInitSubmit(event){  // function sets the initial meaning of history array and closes the init process
       console.log('inside submit!');
       this.setState(() => ({
         history: [{
@@ -168,6 +169,7 @@ class InitScreen extends React.Component{
         }],
         init: false,  // from now it's not the init, it's the game
       }))
+      event.preventDefault();      
     }
 //---------------------------------------------------------------------------------------------------------------
     handleSizeChange(event){  // function handles the change of board's size during the init process
