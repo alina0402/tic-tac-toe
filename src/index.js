@@ -65,33 +65,48 @@ class Board extends React.Component {  // The Board contains NxN Squares
     }
   }
 
-// ===================== Board component: ====================================================================
-class InitScreen extends React.Component{
-
-  render(){
+// ===================== InitScreen component: ====================================================================
+function InitScreen(props){
     const optionsSize = CELLS.map((item) => <option key = {'c'+item}>{item}</option>); // prepare <options> for <select> of size
     const optionsNeedForWin =WIN.map((item) => <option key = {'w'+item}>{item}</option>);  // prepare <options> for <select> of winning cells
     return(
-      <form id = 'select-form' onSubmit = {(e) => this.props.onSubmit(e)}> 
+      <form id = 'select-form' onSubmit = {(e) => props.onSubmit(e)}> 
         <h3>Choose parameters of game: </h3>
         <label htmlFor = 'select-size'>Size of board: </label>
         <select className = 'select-param' 
                 id = 'select-size' 
-                value = {this.props.size}
-                onChange = {(e) => this.props.onSizeChange(e)}>
+                value = {props.size}
+                onChange = {(e) => props.onSizeChange(e)}>
                 {optionsSize}
         </select>
         <label htmlFor = 'select-needforwin'>Cells need to win: </label>
         <select className = 'select-param' 
                 id = 'select-needforwin' 
-                value = {this.props.needForWin}
-                onChange = {(e) => this.props.onNeedForWinChange(e)}>
+                value = {props.needForWin}
+                onChange = {(e) => props.onNeedForWinChange(e)}>
                 {optionsNeedForWin}
           </select>         
           <button type = "submit">Submit</button>   
       </form>
     )
-  }
+}
+// ===================== GameScreen component: ====================================================================
+function GameScreen(props){
+  return(
+    <div className="game">
+    <div className="game-board">
+      <Board squares = {props.squares}
+            size = {props.size}
+            winningCells = {props.winningCells}
+              onClick = {(i) => props.handleClick(i)} />
+    </div>
+    <div className="game-info">
+      <SortButton sortedAsc = {props.sortAsc} onClick = {() => props.handleSort()}/>
+      <div id = "status" className = {props.classStatus}>{props.status}</div>
+      <ul>{props.moves}</ul>
+    </div>
+  </div>  
+  )
 }
 
 // ===================== Game component: ====================================================================
@@ -208,19 +223,29 @@ class InitScreen extends React.Component{
       let classStatus = winResult.winner ? 'highlighted' : '';  // if the winner is defined add the 'highlighted' class to the status line 
 
       return (
-        <div className="game">
-          <div className="game-board">
-            <Board squares = {current.squares}
-                   size = {this.state.size}
-                   winningCells = {winResult.winningCells}
-                    onClick = {(i) => this.handleClick(i)} />
-          </div>
-          <div className="game-info">
-            <SortButton sortedAsc = {this.state.sortAsc} onClick = {() => this.handleSort()}/>
-            <div id = "status" className = {classStatus}>{status}</div>
-            <ul>{moves}</ul>
-          </div>
-        </div>
+          <GameScreen squares = {current.squares}
+                      size = {this.state.size}
+                      winningCells = {winResult.winningCells}
+                      handleClick = {(i) => this.handleClick(i)}
+                      sortAsc = {this.state.sortAsc}
+                      handleSort = {this.handleSort}
+                      classStatus = {classStatus} 
+                      status = {status}
+                      moves = {moves}
+            />
+        // <div className="game">
+        //   <div className="game-board">
+        //     <Board squares = {current.squares}
+        //            size = {this.state.size}
+        //            winningCells = {winResult.winningCells}
+        //             onClick = {(i) => this.handleClick(i)} />
+        //   </div>
+        //   <div className="game-info">
+        //     <SortButton sortedAsc = {this.state.sortAsc} onClick = {() => this.handleSort()}/>
+        //     <div id = "status" className = {classStatus}>{status}</div>
+        //     <ul>{moves}</ul>
+        //   </div>
+        // </div>
       );
     }
 //---------------------------------------------------------------------------------------------------------------
