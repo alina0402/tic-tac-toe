@@ -92,17 +92,28 @@ function InitScreen(props){
 }
 // ===================== GameScreen component: ====================================================================
 function GameScreen(props){
+  const winResult = calculateWinner(props.current.squares, props.needForWin);  // check if there's a winner
+
+  // define the row and column of the cell which was filled on the last step:
+  let lastStep = (props.current.row !== null) ? 
+                  "Last step: ("  + props.current.row + ", " + props.current.col + "); " :
+                  "Start the game! ";
+  lastStep = lastStep.concat(props.nextPlayer);  // add the info about last player
+
+  let status = winResult.winner ? "The winner is: " + winResult.winner + '!' : lastStep;  // set info status (has winner / still playing)
+  let classStatus = winResult.winner ? 'highlighted' : '';  // if the winner is defined add the 'highlighted' class to the status line 
+  
   return(
     <div className="game">
     <div className="game-board">
-      <Board squares = {props.squares}
+      <Board squares = {props.current.squares}
             size = {props.size}
-            winningCells = {props.winningCells}
+            winningCells = {winResult.winningCells}
               onClick = {(i) => props.handleClick(i)} />
     </div>
     <div className="game-info">
       <SortButton sortedAsc = {props.sortAsc} onClick = {() => props.handleSort()}/>
-      <div id = "status" className = {props.classStatus}>{props.status}</div>
+      <div id = "status" className = {classStatus}>{status}</div>
       <ul>{props.moves}</ul>
     </div>
   </div>  
@@ -175,7 +186,6 @@ function GameScreen(props){
     }
 //---------------------------------------------------------------------------------------------------------------
     handleInitSubmit(event){  // function sets the initial meaning of history array and closes the init process
-      console.log('inside submit!');
       this.setState(() => ({
         history: [{
           squares: Array(this.state.size * this.state.size).fill(null),
@@ -205,52 +215,7 @@ function GameScreen(props){
       this.renderMoves(this.state.history, this.state.sortAsc);
     }
 //---------------------------------------------------------------------------------------------------------------
-    renderGame(){  // renders the game screen
-      const history = this.state.history.slice(0);  // get the history array, use slice to get a copy of the array and not to mutate state parameter 
-      const current = history[this.state.stepNumber]; // get the current history element
-
-      const winResult = calculateWinner(current.squares, this.state.needForWin);  // check if there's a winner
-
-      const moves = this.renderMoves(history, this.state.sortAsc);  // render sorted steps buttons (buttons with info 'Go to move (N, M) ...')
-
-      // define the row and column of the cell which was filled on the last step:
-      let lastStep = (current.row !== null) ? 
-                      "Last step: ("  + current.row + ", " + current.col + "); " :
-                      "Start the game! ";
-      lastStep = lastStep.concat("Next player: " + (this.state.xIsNext ? "X" : "O"));  // add the info about last player
-
-      let status = winResult.winner ? "The winner is: " + winResult.winner + '!' : lastStep;  // set info status (has winner / still playing)
-      let classStatus = winResult.winner ? 'highlighted' : '';  // if the winner is defined add the 'highlighted' class to the status line 
-
-      return (
-          <GameScreen squares = {current.squares}
-                      size = {this.state.size}
-                      winningCells = {winResult.winningCells}
-                      handleClick = {(i) => this.handleClick(i)}
-                      sortAsc = {this.state.sortAsc}
-                      handleSort = {this.handleSort}
-                      classStatus = {classStatus} 
-                      status = {status}
-                      moves = {moves}
-            />
-        // <div className="game">
-        //   <div className="game-board">
-        //     <Board squares = {current.squares}
-        //            size = {this.state.size}
-        //            winningCells = {winResult.winningCells}
-        //             onClick = {(i) => this.handleClick(i)} />
-        //   </div>
-        //   <div className="game-info">
-        //     <SortButton sortedAsc = {this.state.sortAsc} onClick = {() => this.handleSort()}/>
-        //     <div id = "status" className = {classStatus}>{status}</div>
-        //     <ul>{moves}</ul>
-        //   </div>
-        // </div>
-      );
-    }
-//---------------------------------------------------------------------------------------------------------------
     render() {
-      console.log('init = ', this.state.init);
       if(this.state.init){  // if the game is in the process of initiating of parameters
         return(
           <InitScreen size = {this.state.size} 
@@ -262,7 +227,19 @@ function GameScreen(props){
         )
       }
       else{
-        return this.renderGame();
+        const history = this.state.history.slice(0);  // get the history array, use slice to get a copy of the array and not to mutate state parameter 
+        const moves = this.renderMoves(history, this.state.sortAsc);  // render sorted steps buttons (buttons with info 'Go to move (N, M) ...')
+        return (
+            <GameScreen current = {history[this.state.stepNumber]}  // current (the latest) step in the history
+                        needForWin = {this.state.needForWin}
+                        moves = {moves}
+                        nextPlayer = {"Next player: " + (this.state.xIsNext ? "X" : "O")}
+                        size = {this.state.size}
+                        sortAsc = {this.state.sortAsc}
+                        handleClick = {(i) => this.handleClick(i)}
+                        handleSort = {this.handleSort}
+              />
+        );
       }
     }
   }
@@ -308,6 +285,7 @@ function GameScreen(props){
       let winnersArr = [];
       for(let j = start; j < finish; j++)
         winnersArr.push(f(i, j, startIndex, size));
+
       return winnersArr;
     }
 
@@ -331,7 +309,7 @@ function GameScreen(props){
       let str = makeStr(i, squares.length, size, false);
       let index = getIndex(str);
       if(index !== -1){
-        return {winningCells: makeWinnersArray(index, i, index, index+needForWin, f2), winner: squares[i+ index*size]};
+        return {winningCells: makeWinnersArray(index, i, index, +index + +needForWin, f2), winner: squares[i+ index*size]};
       }
     }
 
@@ -341,7 +319,7 @@ function GameScreen(props){
       let str = makeStr(i, squares.length, size-1, true);
       let index = getIndex(str);
       if(index !== -1){
-          return {winningCells: makeWinnersArray(index, i, index, index+needForWin, f3), winner: squares[i + index*(size-1)]};
+          return {winningCells: makeWinnersArray(index, i, index, +index + +needForWin, f3), winner: squares[i + index*(size-1)]};
       }
     }
     // 2 diagonals  : ///
@@ -350,7 +328,7 @@ function GameScreen(props){
       let str = makeStr(i, squares.length, size-1, false);
       let index = getIndex(str);
       if(index !== -1){
-        return {winningCells: makeWinnersArray(index, i, index, index+needForWin, f3), winner: squares[i + index*(size-1)]};
+        return {winningCells: makeWinnersArray(index, i, index, +index + +needForWin, f3), winner: squares[i + index*(size-1)]};
       }
     }
 
